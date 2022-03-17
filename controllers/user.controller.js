@@ -67,3 +67,11 @@ exports.createUser = catchAsync(async (req, res) => {
     }
   });
 });
+
+exports.updateUser = catchAsync( async(req, res) => {
+
+})
+
+exports.deleteUser = catchAsync( async( req, res) => {
+
+})
