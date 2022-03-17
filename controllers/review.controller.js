@@ -63,3 +63,47 @@ exports.createReview = catchAsync(async (req, res) => {
     }
   });
 });
+
+
+exports.updateReview = catchAsync(async (req, res,next) => {
+
+    const { id } = req.params;
+      const data = filterObj(req.body, 'title', 'comment', 'rating', 'userId', 'movieId' ); 
+  
+      const review = await Review.findOne({
+        where: { id: id, status: 'active' }
+      });
+  
+      if (!review) {
+      return next(
+        new AppError(400, 'Must provide a valid name, country, rating, age, profilePic'))
+        
+      }
+
+      await review.update({ ...data }); 
+      res.status(204).json({ status: 'success',
+      message: 'the actor with id ${id} was update correctly'
+    });
+    
+  });
+  // Delete post
+  exports.deleteReview = catchAsync(async (req, res ) => {
+    
+      const { id } = req.params;
+  
+      const review = await Review.findOne({
+        where: { id: id, status: 'active' }
+      });
+  
+      if (!review) {
+      return next(
+        new AppError(400, 'Must provide a valid name, email and password'))
+       
+      }
+  
+      // Soft delete
+      await review.update({ status: 'deleted' });
+  
+      res.status(204).json({ status: 'success' });
+    
+  });

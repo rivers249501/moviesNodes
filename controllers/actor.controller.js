@@ -1,10 +1,11 @@
 const { Actor } = require('../models/actors.model');
 const { AppError } = require('../utils/appError');
 const { catchAsync } = require('../utils/catchAsync');
+const { filterObj } = require('../utils/filterObj');
 
 exports.getAllActors = catchAsync(async (req, res, next) => {
   const actors = await Actor.findAll({
-    // where: {status: 'active'}
+    where: {status: 'active'}
   });
 
   //if(user.length === 0){
@@ -62,3 +63,47 @@ exports.createActors = catchAsync(async (req, res) => {
     }
   });
 });
+
+exports.updateActors = catchAsync(async (req, res,next) => {
+
+    const { id } = req.params;
+      const data = filterObj(req.body, 'name', 'country', 'rating', 'age', 'profilePic'); 
+  
+      const actors = await Actor.findOne({
+        where: { id: id, status: 'active' }
+      });
+  
+      if (!actors) {
+      return next(
+        new AppError(400, 'Must provide a valid name, country, rating, age, profilePic'))
+        
+      }
+
+      await actors.update({ ...data }); 
+      res.status(204).json({ status: 'success',
+      message: 'the actor with id ${id} was update correctly'
+    });
+    
+  });
+  // Delete post
+  exports.deleteActor = catchAsync(async (req, res ) => {
+    
+      const { id } = req.params;
+  
+      const actors = await Actor.findOne({
+        where: { id: id, status: 'active' }
+      });
+  
+      if (!actors) {
+      return next(
+        new AppError(400, 'Must provide a valid name, email and password'))
+       
+      }
+  
+      // Soft delete
+      await actors.update({ status: 'deleted' });
+  
+      res.status(204).json({ status: 'success' });
+    
+  });
+  

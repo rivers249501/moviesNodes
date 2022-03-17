@@ -10,10 +10,9 @@ router.post('/', createUser)
 
 router.get('/:id', getUserById)
 
-router.patch('/', updateUser)
+router.patch('/:id', updateUser)
 
 router.delete('/:id', deleteUser )
-
 
 
 module.exports = {usersRouter: router}

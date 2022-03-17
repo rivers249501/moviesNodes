@@ -4,6 +4,7 @@
 const { Movies } = require('../models/movies.model');
 const { AppError } = require('../utils/appError');
 const { catchAsync } = require('../utils/catchAsync');
+const { filterObj } = require('../utils/filterObj');
 
 exports.getAllmovie = catchAsync(async (req, res, next) => {
   const movie = await Movies.findAll({
@@ -43,9 +44,9 @@ exports.getMovieById = catchAsync(async (req, res, next) => {
 });
 
 exports.createMovie = catchAsync(async (req, res) => {
-  const { title, description, duration, rating, img, genre } = req.body;
-  
-  if (!title || !description || !duration || !rating || !img || genre) {
+  const { title, description, duration, rating, img, genre, userId, movieId } = req.body;
+
+  if (!title || !description || !duration || !rating || !img || genre || userId || movieId) {
     return next(
       new AppError(400, 'Must provide a valid name, email and password')
     );
@@ -56,7 +57,9 @@ exports.createMovie = catchAsync(async (req, res) => {
     duration: duration,
     rating: rating,
     img: img,
-    genre: genre
+    genre: genre,
+    userId: userId,
+    movieId: movieId
   });
 
   res.status(200).json({
@@ -66,3 +69,46 @@ exports.createMovie = catchAsync(async (req, res) => {
     }
   });
 });
+
+exports.updateMovie = catchAsync(async (req, res,next) => {
+
+    const { id } = req.params;
+      const data = filterObj(req.body, 'title', 'description', 'duration', 'rating', 'img', 'genre' ); 
+  
+      const movie = await Movies.findOne({
+        where: { id: id, status: 'active' }
+      });
+  
+      if (!movie) {
+      return next(
+        new AppError(400, 'Must provide a valid name, country, rating, age, profilePic'))
+        
+      }
+
+      await movie.update({ ...data }); 
+      res.status(204).json({ status: 'success',
+      message: 'the actor with id ${id} was update correctly'
+    });
+    
+  });
+
+  exports.deleteMovie = catchAsync(async (req, res ) => {
+    
+      const { id } = req.params;
+  
+      const movie = await Movies.findOne({
+        where: { id: id, status: 'active' }
+      });
+  
+      if (!movie) {
+      return next(
+        new AppError(400, 'Must provide a valid name, email and password'))
+       
+      }
+  
+      // Soft delete
+      await movie.update({ status: 'deleted' });
+  
+      res.status(204).json({ status: 'success' });
+    
+  });

@@ -12,4 +12,6 @@ router.get('/:id', getAllActorInMovie)
 
 
 
+
+
 module.exports = {actorInMovieRouter: router}

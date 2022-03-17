@@ -26,7 +26,7 @@ app.use('/api/v1/movies', moviesRouter);
 
 app.use('/api/v1/actorinmovies', actorInMovieRouter);
 
-app.use('/api/v1/actor', actorsRouter);
+app.use('/api/v1/actors', actorsRouter);
 
 app.use('*', (req, res, next) => {
   next(new AppError(404, `${req.originalUrl} not found in this server.`));
