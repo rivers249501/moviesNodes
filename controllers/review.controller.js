@@ -64,7 +64,6 @@ exports.createReview = catchAsync(async (req, res) => {
   });
 });
 
-
 exports.updateReview = catchAsync(async (req, res,next) => {
 
     const { id } = req.params;
@@ -87,7 +86,7 @@ exports.updateReview = catchAsync(async (req, res,next) => {
     
   });
   // Delete post
-  exports.deleteReview = catchAsync(async (req, res ) => {
+exports.deleteReview = catchAsync(async (req, res ) => {
     
       const { id } = req.params;
   

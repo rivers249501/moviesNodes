@@ -1,7 +1,10 @@
 const { Actor } = require('../models/actors.model');
+
 const { AppError } = require('../utils/appError');
 const { catchAsync } = require('../utils/catchAsync');
 const { filterObj } = require('../utils/filterObj');
+const { ref, uploadBytes } = require('firebase/storage');
+const { storage } = require('../utils/firebase')
 
 exports.getAllActors = catchAsync(async (req, res, next) => {
   const actors = await Actor.findAll({
@@ -48,12 +51,17 @@ exports.createActors = catchAsync(async (req, res) => {
       new AppError(400, 'Must provide a valid name, email and password')
     );
   }
+
+      //firebase upload img cloud storage firebase
+const imgRef = ref(storage, `imgs/${Date.now()}-${req.file.originalname}`);
+const result = await uploadBytes(imgRef, req.file.buffer);
+
   const actors = await Actor.create({
     name: name,
     country: country,
     rating: rating,
     age: age,
-    profilePic: profilePic
+    profilePic: result.metadata.fullPath
   });
 
   res.status(200).json({
@@ -86,7 +94,7 @@ exports.updateActors = catchAsync(async (req, res,next) => {
     
   });
   // Delete post
-  exports.deleteActor = catchAsync(async (req, res ) => {
+exports.deleteActor = catchAsync(async (req, res ) => {
     
       const { id } = req.params;
   

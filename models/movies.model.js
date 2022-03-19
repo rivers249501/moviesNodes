@@ -27,7 +27,7 @@ const Movies = sequelize.define('movies', {
     type: DataTypes.INTEGER,
     allowNull: false
   },
-  img: {
+  imgUrl: {
     type: DataTypes.STRING,
     allowNull: false
   },

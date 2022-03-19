@@ -1,6 +1,9 @@
 // const { Review } = require('../models/reviews.model')
 // const { User } = require('../models/users.model')
+// const { ref, uploadBytes } = require('firebase/storage');
 
+const { ref, uploadBytes } = require('firebase/storage');
+const { storage } = require('../utils/firebase')
 const { Movies } = require('../models/movies.model');
 const { AppError } = require('../utils/appError');
 const { catchAsync } = require('../utils/catchAsync');
@@ -43,26 +46,29 @@ exports.getMovieById = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createMovie = catchAsync(async (req, res) => {
-  const { title, description, duration, rating, img, genre, userId, movieId } = req.body;
+exports.createMovie = catchAsync(async (req, res, next) => {
+  const { title, description, duration, rating, imgUrl, genre } = req.body;
 
-  if (!title || !description || !duration || !rating || !img || genre || userId || movieId) {
+  if (!title || !description || !duration || !rating ||  !genre ) {
     return next(
       new AppError(400, 'Must provide a valid name, email and password')
     );
   }
+    //firebase upload img cloud storage firebase
+const imgRef = ref(storage, req.file.originalname);
+const result = await uploadBytes(imgRef, req.file.buffer);
+console.log(result);
+//imgurl: result.metadata.fullpath
   const movie = await Movies.create({
     title: title,
     description: description,
     duration: duration,
     rating: rating,
-    img: img,
-    genre: genre,
-    userId: userId,
-    movieId: movieId
+    imgUrl: result.metadata.fullPath,
+    genre: genre
   });
 
-  res.status(200).json({
+  res.status(201).json({
     status: 'success',
     data: {
       movie
@@ -92,7 +98,7 @@ exports.updateMovie = catchAsync(async (req, res,next) => {
     
   });
 
-  exports.deleteMovie = catchAsync(async (req, res ) => {
+exports.deleteMovie = catchAsync(async (req, res ) => {
     
       const { id } = req.params;
   
@@ -112,3 +118,6 @@ exports.updateMovie = catchAsync(async (req, res,next) => {
       res.status(204).json({ status: 'success' });
     
   });
+
+
+

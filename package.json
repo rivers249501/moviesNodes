@@ -4,6 +4,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
+    "firebase": "^9.6.9",
     "git": "^0.1.5",
     "jsonwebtoken": "^8.5.1",
     "multer": "^1.4.4",
@@ -16,7 +17,6 @@
   "version": "1.0.0",
   "description": "movies",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "start": "node server.js",
     "start:dev": "nodemon server.js"
