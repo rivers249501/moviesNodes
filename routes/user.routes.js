@@ -21,21 +21,24 @@ const {
 
 const router = express.Router();
 
-router.post('/', createUser);
-
-router.post('/login', loginUser);
-
 router.use(validateSession);
 
-router.get('/', protectAdmin, getAllUsers);
+router
+.route('/')
+.post(createUser)
+.get(protectAdmin, getAllUsers);
+
+router
+.route('/login')
+.post(loginUser)
 
 // router.get('/check-token')
 router.use('/', userExists);
 
-router.get('/:id', getUserById);
-
-router.patch('/:id', protectAccountOwner, updateUser);
-
-router.delete('/:id', protectAccountOwner, deleteUser);
+router
+.route('/:id')
+.get(getUserById)
+.patch(protectAccountOwner, updateUser)
+.delete(protectAccountOwner, deleteUser);
 
 module.exports = { usersRouter: router };
