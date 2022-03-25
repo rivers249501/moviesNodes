@@ -1,18 +1,24 @@
-const express = require('express')
+const express = require('express');
 
-const { getAllReview, getReviewById, createReview, updateReview, deleteReview,   } = require('../controllers/review.controller')
+const {
+  getAllReview,
+  getReviewById,
+  createReview,
+  updateReview,
+  deleteReview
+} = require('../controllers/review.controller');
 
-const router = express.Router() 
+// middlewares
+const { validateSession } = require('../middlewares/auth.middlewares');
 
-router.get('/', getAllReview)
+const router = express.Router();
 
-router.post('/', createReview)
+router.route('/').get(getAllReview).post(validateSession, createReview);
 
-router.get('/:id', getReviewById)
+router
+  .route('/:id')
+  .get(getReviewById)
+  .patch(updateReview)
+  .delete(deleteReview);
 
-router.patch('/:id', updateReview)
-
-router.delete('/:id', deleteReview)
-
-
-module.exports = {reviewRouter: router}
+module.exports = { reviewRouter: router };

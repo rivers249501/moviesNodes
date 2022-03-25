@@ -1,19 +1,39 @@
-const express = require('express')
-const { getAllActors, createActors, getActorsById, updateActors, deleteActor } = require('../controllers/actor.controller')
+const express = require('express');
 
+//controllers
+const {
+  getAllActors,
+  createActors,
+  getActorsById,
+  updateActors,
+  deleteActor
+} = require('../controllers/actor.controller');
 
-const router = express.Router() 
+//middleware
+const {
+  validateSession,
+  protectAdmin
+} = require('../middlewares/auth.middlewares');
+const { actorExists } = require('../middlewares/actors.middleware');
 
-router.get('/', getAllActors)
+//utils
+const { upload } = require('../utils/multer');
 
-router.post('/', createActors)
+//route
+const router = express.Router();
 
-router.get('/:id', getActorsById)
+router.use(validateSession);
 
-router.patch('/:id', updateActors)
+router
+  .route('/')
+  .get(getAllActors)
+  .post(protectAdmin, upload.single('imgUrl'), createActors);
 
-router.delete('/:id', deleteActor )
+router
+  .use('/:id', actorExists)
+  .route('/:id')
+  .get(getActorsById)
+  .patch(protectAdmin, updateActors)
+  .delete(protectAdmin, deleteActor);
 
-
-
-module.exports = {actorsRouter: router}
+module.exports = { actorsRouter: router };

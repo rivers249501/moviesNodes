@@ -1,20 +1,40 @@
-const express = require('express')
+const express = require('express');
 
-const { getAllmovie, createMovie, getMovieById, updateMovie, deleteMovie } = require('../controllers/movie.controller')
-const { upload } = require('../utils/multer')
+const {
+  getAllmovie,
+  createMovie,
+  getMovieById,
+  updateMovie,
+  deleteMovie
+} = require('../controllers/movie.controller');
 
-const router = express.Router() 
+//middleware
+const {
+  validateSession,
+  protectAdmin
+} = require('../middlewares/auth.middlewares');
 
-router.get('/', getAllmovie)
+const { movieExists } = require('../middlewares/moviesmiddleware');
 
-// router.post('/', createMovie)
+//utils
+const { upload } = require('../utils/multer');
 
-router.get('/:id', getMovieById)
+const router = express.Router();
 
-router.patch('/:id', updateMovie)
+router.use(validateSession);
 
-router.delete('/:id', deleteMovie)
+router
+  .route('/')
+  .get(getAllmovie)
+  .post(protectAdmin, upload.single('imgUrl'), createMovie);
 
-router.post('/', upload.single('imgUrl'), createMovie)
+router.use('/', movieExists);
 
-module.exports = {moviesRouter: router}
+router
+  .route('/:id')
+  .get(getMovieById)
+  .patch(protectAdmin, updateMovie)
+  .delete(protectAdmin, deleteMovie);
+
+// router.post('/', validatesession, upload.single('imgUrl'), createmovie)
+module.exports = { moviesRouter: router };

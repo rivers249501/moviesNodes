@@ -1,17 +1,12 @@
-const express = require('express')
-const { getAllActorInMovie, createActor } = require('../controllers/actormovies.controller')
+const express = require('express');
+const {
+  getAllActorInMovie,
+  createActor
+} = require('../controllers/actormovies.controller');
 
+const router = express.Router();
+router.route('/').get(getAllActorInMovie).post(createActor);
 
-const router = express.Router() 
+router.get('/:id', getAllActorInMovie);
 
-router.get('/', getAllActorInMovie)
-
-router.post('/', createActor)
-
-router.get('/:id', getAllActorInMovie)
-
-
-
-
-
-module.exports = {actorInMovieRouter: router}
+module.exports = { actorInMovieRouter: router };

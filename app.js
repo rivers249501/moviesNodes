@@ -1,5 +1,5 @@
 const express = require('express');
-
+const cors = require('cors')
 //Routes
 const { actorInMovieRouter } = require('./routes/actorMovie.routes');
 const { actorsRouter } = require('./routes/actors.routes');
@@ -19,6 +19,9 @@ app.use(express.json());
 
 // Enable multipart/form-data incoming data (to receive files)
 app.use(express.urlencoded({ extended: true }));
+
+//enable cors
+app.use(cors());
 
 //endpoints
 app.use('/api/v1/users', usersRouter);

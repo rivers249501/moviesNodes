@@ -39,13 +39,11 @@ exports.getActorById = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createActor = catchAsync(async (req, res) => {
+exports.createActor = catchAsync(async (req, res, next) => {
   const { actorId, movieId } = req.body;
 
-  if (!actorId || !movieId ) {
-    return next(
-      new AppError(400, 'Must provide a valid name, email and password')
-    );
+  if (!actorId || !movieId) {
+    return next(new AppError(400, 'Must provide a valid actorId, and movieId'));
   }
   const actorMovie = await ActorsInMovies.create({
     actorId: actorId,
@@ -59,4 +57,3 @@ exports.createActor = catchAsync(async (req, res) => {
     }
   });
 });
-

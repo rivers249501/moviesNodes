@@ -1,8 +1,6 @@
-// import { initializeApp } from "firebase/storage";
-// import { getAnalytics } from "firebase/analytics";
 const dotenv = require('dotenv');
 const { initializeApp } = require('firebase/app');
-const { getStorage } = require('firebase/storage') 
+const { getStorage } = require('firebase/storage');
 
 dotenv.config({ path: './config.env' });
 
@@ -13,11 +11,14 @@ const firebaseConfig = {
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.FIREBASE_MESSAGE,
   appId: process.env.FIREBASE_APP_ID,
-  measurementId: process.env.FIREBASE_MEASUREMENT_ID
+  measurementId: process.env.FIREBASE_MEASURE_ID
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
 const storage = getStorage(firebaseApp);
 
 module.exports = { storage };
+
+
+
 

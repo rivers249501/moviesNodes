@@ -40,19 +40,25 @@ exports.getReviewById = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createReview = catchAsync(async (req, res) => {
-  const { title, comment, rating, userId, movieId } = req.body;
+exports.createReview = catchAsync(async (req, res, next) => {
+  // const {id} = req.currentUser
+  const { title, comment, rating, movieId } = req.body;
 
-  if (!title || !comment || !rating || !userId || !movieId ) {
+  console.log(req.currentUser.id);
+
+  if (!title || !comment || !rating || !movieId) {
     return next(
-      new AppError(400, 'Must provide a valid name, email and password')
+      new AppError(
+        400,
+        'Must provide a valid title, comment, rating, and movieId'
+      )
     );
   }
   const review = await Review.create({
     title: title,
     comment: comment,
     rating: rating,
-    userId: userId,
+    userId: req.currentUser.id,
     movieId: movieId
   });
 
@@ -64,45 +70,54 @@ exports.createReview = catchAsync(async (req, res) => {
   });
 });
 
-exports.updateReview = catchAsync(async (req, res,next) => {
+exports.updateReview = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const data = filterObj(
+    req.body,
+    'title',
+    'comment',
+    'rating',
+    'userId',
+    'movieId'
+  );
 
-    const { id } = req.params;
-      const data = filterObj(req.body, 'title', 'comment', 'rating', 'userId', 'movieId' ); 
-  
-      const review = await Review.findOne({
-        where: { id: id, status: 'active' }
-      });
-  
-      if (!review) {
-      return next(
-        new AppError(400, 'Must provide a valid name, country, rating, age, profilePic'))
-        
-      }
+  const review = await Review.findOne({
+    where: { id: id, status: 'active' }
+  });
 
-      await review.update({ ...data }); 
-      res.status(204).json({ status: 'success',
+  if (!review) {
+    return next(
+      new AppError(
+        400,
+        'Must provide a valid name, country, rating, age, profilePic'
+      )
+    );
+  }
+
+  await review.update({ ...data });
+  res
+    .status(204)
+    .json({
+      status: 'success',
       message: 'the actor with id ${id} was update correctly'
     });
-    
+});
+// Delete post
+exports.deleteReview = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+
+  const review = await Review.findOne({
+    where: { id: id, status: 'active' }
   });
-  // Delete post
-exports.deleteReview = catchAsync(async (req, res ) => {
-    
-      const { id } = req.params;
-  
-      const review = await Review.findOne({
-        where: { id: id, status: 'active' }
-      });
-  
-      if (!review) {
-      return next(
-        new AppError(400, 'Must provide a valid name, email and password'))
-       
-      }
-  
-      // Soft delete
-      await review.update({ status: 'deleted' });
-  
-      res.status(204).json({ status: 'success' });
-    
-  });
+
+  if (!review) {
+    return next(
+      new AppError(400, 'Must provide a valid name, email and password')
+    );
+  }
+
+  // Soft delete
+  await review.update({ status: 'deleted' });
+
+  res.status(204).json({ status: 'success' });
+});
