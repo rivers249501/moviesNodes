@@ -42,8 +42,8 @@ exports.loginUser = catchAsync(async (req, res, next) => {
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const user = await User.findAll({
+    attributes: { exclude: ['password'] },
     where: { status: 'active' },
-    attributes: { exclude: ['password'] }
   });
 
   //if(user.length === 0){
