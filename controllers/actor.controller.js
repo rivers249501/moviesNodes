@@ -3,6 +3,7 @@ const { ref, uploadBytes } = require('firebase/storage');
 const { Actor } = require('../models/actors.model');
 const { Movies } = require('../models/movies.model');
 const { ActorsInMovies } = require('../models/actorsInMovies.model');
+const { Review } = require('../models/reviews.model');
 const { validationResult } = require('express-validator');
 //utils
 const { filterObj } = require('../utils/filterObj');
@@ -13,7 +14,7 @@ const { storage } = require('../utils/firebase');
 exports.getAllActors = catchAsync(async (req, res, next) => {
   const actors = await Actor.findAll({
     where: { status: 'active' },
-    include: [{ model: Movies, through: ActorsInMovies }]
+    include: [{ model: Movies, through: ActorsInMovies }],    
   });
 
   // if (actors.length === 0) {

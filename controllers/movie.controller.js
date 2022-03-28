@@ -15,12 +15,8 @@ const { storage } = require('../utils/firebase');
 exports.getAllmovie = catchAsync(async (req, res, next) => {
   const movie = await Movies.findAll({
     where: { status: 'active' },
-    include: [
-      {
-        model: Actor
-      }
-      // { model: Review }
-    ]
+    include: [ {model: Actor}],
+    // include: [{model: Review}]  
   });
 
   // if (movie.length === 0) {
@@ -38,7 +34,8 @@ exports.getAllmovie = catchAsync(async (req, res, next) => {
       genre,
       createdAt,
       updatedAt,
-      actor
+      actor,
+      // review
     }) => {
       const imgRef = ref(storage, imgUrl);
       const imgDownloadUrl = await getDownloadURL(imgRef);
@@ -53,7 +50,8 @@ exports.getAllmovie = catchAsync(async (req, res, next) => {
         genre,
         createdAt,
         updatedAt,
-        actor
+        actor, 
+        // review
       };
     }
   );

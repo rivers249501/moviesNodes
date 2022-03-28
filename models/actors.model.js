@@ -12,15 +12,21 @@ const Actor = sequelize.define('actor', {
   },
   name: {
     type: DataTypes.STRING(100),
-    allowNull: false
+    allowNull: false,
+    require: true
   },
   country: {
     type: DataTypes.STRING(50),
-    allowNull: false
+    allowNull: false,
+    require: true
   },
   rating: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    validate: {
+      max:5,
+      min:1
+    }
   },
   age: {
     type: DataTypes.INTEGER,
