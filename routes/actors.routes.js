@@ -1,4 +1,5 @@
 const express = require('express');
+const { body } = require('express-validator');
 
 //controllers
 const {
@@ -27,13 +28,30 @@ router.use(validateSession);
 router
   .route('/')
   .get(getAllActors)
-  .post(protectAdmin, upload.single('imgUrl'), createActors);
+  .post(
+    protectAdmin,
+    upload.single('imgUrl'),
+    // [
+    //   body('name').isString().notEmpty(),
+    //   body('country')
+    //     .isString()
+    //     .notEmpty()
+    //     .withMessage('must provide valid country name'),
+    //   body('rating')
+    //     .isNumeric()
+    //     .custom((value) => value > 0 && value <= 5),
+    //   body('age')
+    //     .isNumeric()
+    //     .custom((value) => value > 0)
+    // ],
+    createActors
+  );
 
 router
-  .use('/:id', actorExists)
+  .use('/:id', protectAdmin, actorExists)
   .route('/:id')
   .get(getActorsById)
-  .patch(protectAdmin, updateActors)
-  .delete(protectAdmin, deleteActor);
+  .patch(updateActors)
+  .delete(deleteActor);
 
 module.exports = { actorsRouter: router };

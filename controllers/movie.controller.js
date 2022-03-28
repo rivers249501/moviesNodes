@@ -1,28 +1,33 @@
 const { ref, uploadBytes, getDownloadURL } = require('firebase/storage');
-const { storage } = require('../utils/firebase');
+//models
+const { ActorsInMovies } = require('../models/actorsInMovies.model');
 const { Movies } = require('../models/movies.model');
-const { AppError } = require('../utils/appError');
-const { catchAsync } = require('../utils/catchAsync');
-const { filterObj } = require('../utils/filterObj');
 const { User } = require('../models/users.model');
 const { Review } = require('../models/reviews.model');
-const { ActorsInMovies } = require('../models/actorsInMovies.model');
+const { Actor } = require('../models/actors.model');
+//utils
+const { filterObj } = require('../utils/filterObj');
+const { catchAsync } = require('../utils/catchAsync');
+const { AppError } = require('../utils/appError');
+const { storage } = require('../utils/firebase');
 // const { moviesRouter } = require('../routes/movie.routes');
 
 exports.getAllmovie = catchAsync(async (req, res, next) => {
   const movie = await Movies.findAll({
     where: { status: 'active' },
     include: [
-      { model: User, attributes: { exclude: ['password'] } },
-      { model: Review }
+      {
+        model: Actor
+      }
+      // { model: Review }
     ]
   });
 
-  if (movie.length === 0) {
-    return next(new AppError(404, 'User not found'));
-  }
+  // if (movie.length === 0) {
+  //   return next(new AppError(404, 'User not found'));
+  // }
   //promise[]
-  const moviesPromises = allmMovies.map(
+  const moviesPromises = movie.map(
     async ({
       id,
       title,
@@ -33,7 +38,7 @@ exports.getAllmovie = catchAsync(async (req, res, next) => {
       genre,
       createdAt,
       updatedAt,
-      user
+      actor
     }) => {
       const imgRef = ref(storage, imgUrl);
       const imgDownloadUrl = await getDownloadURL(imgRef);
@@ -45,10 +50,10 @@ exports.getAllmovie = catchAsync(async (req, res, next) => {
         duration,
         rating,
         imgUrl: imgDownloadUrl,
-        user,
         genre,
         createdAt,
-        updatedAt
+        updatedAt,
+        actor
       };
     }
   );
@@ -83,9 +88,10 @@ exports.getMovieById = catchAsync(async (req, res, next) => {
 
 exports.createMovie = catchAsync(async (req, res, next) => {
   const { title, description, duration, rating, imgUrl, genre } = req.body;
-  if (!title || !description || !duration || !rating || !genre) {
-    return next(new AppError(404, 'Verify the properties and their content'));
-  }
+
+  // if (!title || !description || !duration || !rating || !genre) {
+  //   return next(new AppError(404, 'Verify the properties and their content'));
+  // }
   // Upload img to Cloud Storage (Firebase)
   const fileExtension = req.file.originalname.split('.')[1];
 
@@ -95,7 +101,7 @@ exports.createMovie = catchAsync(async (req, res, next) => {
   );
   const result = await uploadBytes(imgRef, req.file.buffer);
 
-  const movie = await Movies.create({
+  const newMovie = await Movies.create({
     title: title,
     description: description,
     duration: duration,
@@ -104,17 +110,17 @@ exports.createMovie = catchAsync(async (req, res, next) => {
     genre: genre
   });
 
-  const actorsInMoviesPromises = actors.map(async (actorId) => {
-    // Assign actors to newly created movie
-    return await ActorsInMovies.create({ actorId, movieId: movie.id });
-  });
+  // const actorsInMoviesPromises = actors.map(async (actorId) => {
+  //   // Assign actors to newly created movie
+  //   return await ActorsInMovies.create({ actorId, movieId: movie.id });
+  // });
 
-  await Promise.all(actorsInMoviesPromises);
+  // await Promise.all(actorsInMoviesPromises);
 
   res.status(200).json({
     status: 'success',
     data: {
-      movie
+      newMovie
     }
   });
 });

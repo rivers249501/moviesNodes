@@ -1,4 +1,5 @@
 const { Review } = require('../models/reviews.model');
+//utils
 const { AppError } = require('../utils/appError');
 const { catchAsync } = require('../utils/catchAsync');
 // const { User } = require('../models/users.model')
@@ -95,12 +96,10 @@ exports.updateReview = catchAsync(async (req, res, next) => {
   }
 
   await review.update({ ...data });
-  res
-    .status(204)
-    .json({
-      status: 'success',
-      message: 'the actor with id ${id} was update correctly'
-    });
+  res.status(204).json({
+    status: 'success',
+    message: 'the actor with id ${id} was update correctly'
+  });
 });
 // Delete post
 exports.deleteReview = catchAsync(async (req, res, next) => {

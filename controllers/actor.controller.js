@@ -1,10 +1,12 @@
+const { ref, uploadBytes } = require('firebase/storage');
+//models
 const { Actor } = require('../models/actors.model');
 const { Movies } = require('../models/movies.model');
-
-const { AppError } = require('../utils/appError');
-const { catchAsync } = require('../utils/catchAsync');
+const { validationResult } = require('express-validator');
+//utils
 const { filterObj } = require('../utils/filterObj');
-const { ref, uploadBytes } = require('firebase/storage');
+const { catchAsync } = require('../utils/catchAsync');
+const { AppError } = require('../utils/appError');
 const { storage } = require('../utils/firebase');
 
 exports.getAllActors = catchAsync(async (req, res, next) => {
@@ -13,36 +15,36 @@ exports.getAllActors = catchAsync(async (req, res, next) => {
     include: [{ model: Movies }]
   });
 
-  if (actors.length === 0) {
-    return next(new AppError(404, 'User not found'));
-  }
+  // if (actors.length === 0) {
+  //   return next(new AppError(404, 'User not found'));
+  // }
 
   //promise[]
-  const actorPromises = allActor.map(
+  const actorPromises = actors.map(
     async ({
       id,
-      name,
+      title,
       country,
-      duration,
       rating,
-      age,
       profilePic,
+      age,
       createdAt,
-      updatedAt
+      updatedAt,
+      movies
     }) => {
-      const imgRef = ref(storage, imgUrl);
+      const imgRef = ref(storage, profilePic);
       const imgDownloadUrl = await getDownloadURL(imgRef);
 
       return {
         id,
-        name,
+        title,
         country,
-        duration,
         rating,
-        age,
         profilePic: imgDownloadUrl,
+        age,
         createdAt,
-        updatedAt
+        updatedAt,
+        movies
       };
     }
   );
@@ -79,6 +81,17 @@ exports.getActorsById = catchAsync(async (req, res, next) => {
 
 exports.createActors = catchAsync(async (req, res, next) => {
   const { name, country, rating, age, profilePic } = req.body;
+
+  //validation req.body
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    const errorMsg = errors
+      .array()
+      .map(({ msg }) => msg)
+      .join('.');
+    return next(new AppError(400, errorMsg));
+  }
   // if (!name || !country || !rating || !age || !profilePic) {
   //   return next(
   //     new AppError(400, 'Must provide a valid name, country, rating, age and profilePic')
@@ -89,11 +102,11 @@ exports.createActors = catchAsync(async (req, res, next) => {
   //firebase upload img cloud storage firebase
   const imgRef = ref(
     storage,
-    `imgs/movies/${name}-${Date.now()}.${fileExtension}`
+    `imgs/actors/${name}-${Date.now()}.${fileExtension}`
   );
   const result = await uploadBytes(imgRef, req.file.buffer);
 
-  const actors = await Actor.create({
+  const newActors = await Actor.create({
     name: name,
     country: country,
     rating: rating,
@@ -104,7 +117,7 @@ exports.createActors = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: {
-      actors
+      newActors
     }
   });
 });
@@ -112,14 +125,7 @@ exports.createActors = catchAsync(async (req, res, next) => {
 exports.updateActors = catchAsync(async (req, res, next) => {
   // const { id } = req.params;
   const { actor } = req;
-  const data = filterObj(
-    req.body,
-    'name',
-    'country',
-    'rating',
-    'age',
-    'profilePic'
-  );
+  const data = filterObj(req.body, 'name', 'country', 'rating', 'age');
 
   // const actors = await Actor.findOne({
   //   where: { id: id, status: 'active' }
@@ -132,25 +138,23 @@ exports.updateActors = catchAsync(async (req, res, next) => {
   // }
 
   await actor.update({ ...data });
-  res
-    .status(204)
-    .json({
-      status: 'success',
-      message: 'the actor with id ${id} was update correctly'
-    });
+  res.status(204).json({
+    status: 'success',
+    message: 'the actor with id ${id} was update correctly'
+  });
 });
 // Delete post
 exports.deleteActor = catchAsync(async (req, res, next) => {
   // const { id } = req.params;
   const { actor } = req;
-  const data = filterObj(
-    req.body,
-    'name',
-    'country',
-    'rating',
-    'age',
-    'profilePic'
-  );
+  // const data = filterObj(
+  //   req.body,
+  //   'name',
+  //   'country',
+  //   'rating',
+  //   'age',
+  //   'profilePic'
+  // );
   // const actors = await Actor.findOne({
   //   where: { id: id, status: 'active' }
   // });
@@ -160,7 +164,6 @@ exports.deleteActor = catchAsync(async (req, res, next) => {
   //   new AppError(400, 'Must provide a valid name, email and password'))
 
   // }
-
   // Soft delete
   await actor.update({ status: 'deleted' });
 

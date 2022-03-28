@@ -1,4 +1,5 @@
 const { ActorsInMovies } = require('../models/actorsInMovies.model');
+//utils
 const { AppError } = require('../utils/appError');
 const { catchAsync } = require('../utils/catchAsync');
 
@@ -10,7 +11,11 @@ exports.getAllActorInMovie = catchAsync(async (req, res, next) => {
   //if(user.length === 0){
   //console.log(user);
   if (actorMovie.length === 0) {
-    return next(new AppError(404, 'User not found'));
+    res.status(400).json({
+      status: 'error',
+      message: 'there are not user until'
+    });
+    return;
   }
 
   res.status(201).json({
@@ -28,7 +33,10 @@ exports.getActorById = catchAsync(async (req, res, next) => {
   });
 
   if (!actorMovie) {
-    return next(new AppError(404, 'User not found'));
+    res.status(404).json({
+      status: 'error',
+      message: 'the id ${ id } selected was no found'
+    });
   }
 
   res.status(200).json({

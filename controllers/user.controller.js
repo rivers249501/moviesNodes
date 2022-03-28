@@ -1,15 +1,14 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const { async } = require('@firebase/util');
 
 //models
 const { User } = require('../models/users.model');
-
+//utils
 const { AppError } = require('../utils/appError');
 const { catchAsync } = require('../utils/catchAsync');
 const { filterObj } = require('../utils/filterObj');
-
-const { async } = require('@firebase/util');
 
 dotenv.config({ path: './config.env' });
 
@@ -43,15 +42,15 @@ exports.loginUser = catchAsync(async (req, res, next) => {
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const user = await User.findAll({
-    attributes: { exclude: ['password'] },
-    where: { status: 'active' }
+    where: { status: 'active' },
+    attributes: { exclude: ['password'] }
   });
 
   //if(user.length === 0){
   //console.log(user);
-  if (user.length === 0) {
-    return next(new AppError(404, 'User not found'));
-  }
+  // if (user.length === 0) {
+  //   return next(new AppError(404, 'User not found'));
+  // }
 
   res.status(201).json({
     status: 'success',
@@ -62,14 +61,14 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 });
 
 exports.getUserById = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const user = await User.findOne({
-    where: { id: id, status: 'active' }
-  });
-
-  if (!user) {
-    return next(new AppError(404, 'User not found'));
-  }
+  // const { id } = req.params;
+  // const user = await User.findOne({
+  //   where: { id: id, status: 'active' }
+  // });
+  const { user } = req;
+  // if (!user) {
+  //   return next(new AppError(404, 'User not found'));
+  // }
 
   res.status(200).json({
     status: 'success',
@@ -82,14 +81,14 @@ exports.getUserById = catchAsync(async (req, res, next) => {
 exports.createUser = catchAsync(async (req, res, next) => {
   const { username, email, password, role } = req.body;
 
-  if (!username || !email || !password || !role) {
-    return next(
-      new AppError(
-        400,
-        'Must provide a valid username, email, password and role'
-      )
-    );
-  }
+  // if (!username || !email || !password || !role) {
+  //   return next(
+  //     new AppError(
+  //       400,
+  //       'Must provide a valid username, email, password and role'
+  //     )
+  //   );
+  // }
   // const user = await User.create({
   //   username: username,
   //   email: email,
@@ -100,20 +99,20 @@ exports.createUser = catchAsync(async (req, res, next) => {
   const salt = await bcrypt.genSalt(12);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  const user = await User.create({
-    username: username,
-    email: email,
+  const newUser = await User.create({
+    username,
+    email,
     password: hashedPassword,
-    role: role
+    role
   });
 
   // Remove password from response
-  user.password = undefined;
+  newUser.password = undefined;
 
   res.status(200).json({
     status: 'success',
     data: {
-      user
+      newUser
     }
   });
 });
@@ -121,7 +120,7 @@ exports.createUser = catchAsync(async (req, res, next) => {
 exports.updateUser = catchAsync(async (req, res, next) => {
   // const { id } = req.params;
   const { user } = req;
-  const data = filterObj(req.body, 'username', 'email', 'password', 'role');
+  const data = filterObj(req.body, 'username', 'email');
 
   // const user = await User.findOne({
   //   where: { id: id, status: 'active' }
@@ -134,12 +133,10 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   // }
 
   await user.update({ ...data });
-  res
-    .status(204)
-    .json({
-      status: 'success',
-      message: 'the actor with id ${id} was update correctly'
-    });
+  res.status(204).json({
+    status: 'success',
+    message: 'the actor with id ${id} was update correctly'
+  });
 });
 
 exports.deleteUser = catchAsync(async (req, res, next) => {

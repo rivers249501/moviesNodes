@@ -1,5 +1,8 @@
 const express = require('express');
-const cors = require('cors')
+// const cors = require('cors')
+
+//controllers
+const { globalErrorhandler } = require('./controllers/error.controller');
 //Routes
 const { actorInMovieRouter } = require('./routes/actorMovie.routes');
 const { actorsRouter } = require('./routes/actors.routes');
@@ -9,7 +12,6 @@ const { usersRouter } = require('./routes/user.routes');
 
 //Errors
 const { AppError } = require('./utils/appError');
-const { globalErrorhandler } = require('./controllers/error.controller');
 
 //init server
 const app = express();
@@ -21,7 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 //enable cors
-app.use(cors());
+// app.use(cors());
 
 //endpoints
 app.use('/api/v1/users', usersRouter);

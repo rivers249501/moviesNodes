@@ -1,5 +1,6 @@
 const express = require('express');
 
+//controllers
 const {
   getAllUsers,
   createUser,
@@ -9,6 +10,7 @@ const {
   loginUser
 } = require('../controllers/user.controller');
 
+//middlewares
 const {
   validateSession,
   protectAdmin
@@ -21,24 +23,20 @@ const {
 
 const router = express.Router();
 
+router.post('/', createUser).post('/login', loginUser);
+// .route('/login')
+
 router.use(validateSession);
 
-router
-.route('/')
-.post(createUser)
-.get(protectAdmin, getAllUsers);
-
-router
-.route('/login')
-.post(loginUser)
+router.route('/').get(protectAdmin, getAllUsers);
 
 // router.get('/check-token')
 router.use('/', userExists);
 
 router
-.route('/:id')
-.get(getUserById)
-.patch(protectAccountOwner, updateUser)
-.delete(protectAccountOwner, deleteUser);
+  .route('/:id')
+  .get(getUserById)
+  .patch(protectAccountOwner, updateUser)
+  .delete(protectAccountOwner, deleteUser);
 
 module.exports = { usersRouter: router };

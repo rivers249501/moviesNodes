@@ -8,7 +8,10 @@ const { catchAsync } = require('../utils/catchAsync');
 exports.movieExists = catchAsync(async (req, res, next) => {
   const { id } = req.params;
 
-  const movie = await Movie.findOne({ where: { id, status: 'active' } });
+  const movie = await Movie.findOne({
+    attributes: { exclude: ['password'] },
+    where: { id, status: 'active' }
+  });
 
   if (!movie) {
     return next(new AppError(404, 'No movie found with that ID'));

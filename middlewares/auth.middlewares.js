@@ -24,7 +24,7 @@ exports.validateSession = catchAsync(async (req, res, next) => {
   }
 
   if (!token) {
-    return next(new AppError(401, 'Invalid session'));
+    return next(new AppError(401, 'Invalid session, token no entregado'));
   }
 
   // Verify that token is still valid
@@ -35,12 +35,14 @@ exports.validateSession = catchAsync(async (req, res, next) => {
 
   // Validate that the id the token contains belongs to a valid user
   // SELECT id, email FROM users;
+
   const user = await User.findOne({
     where: { id: decodedToken.id, status: 'active' },
     attributes: {
       exclude: ['password']
     }
   });
+  console.log(user);
 
   if (!user) {
     return next(new AppError(401, 'Invalid session'));
