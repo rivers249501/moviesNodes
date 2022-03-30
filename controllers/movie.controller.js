@@ -1,4 +1,5 @@
 const { ref, uploadBytes, getDownloadURL } = require('firebase/storage');
+const { validationResult } = require('express-validator');
 //models
 const { ActorsInMovies } = require('../models/actorsInMovies.model');
 const { Movies } = require('../models/movies.model');
@@ -85,7 +86,7 @@ exports.getMovieById = catchAsync(async (req, res, next) => {
 });
 
 exports.createMovie = catchAsync(async (req, res, next) => {
-  const { title, description, duration, rating, imgUrl, genre } = req.body;
+  const { title, description, duration, rating, genre, actors } = req.body;
 
   // if (!title || !description || !duration || !rating || !genre) {
   //   return next(new AppError(404, 'Verify the properties and their content'));
@@ -106,14 +107,15 @@ exports.createMovie = catchAsync(async (req, res, next) => {
     rating: rating,
     imgUrl: result.metadata.fullPath,
     genre: genre
+  
   });
 
-  // const actorsInMoviesPromises = actors.map(async (actorId) => {
-  //   // Assign actors to newly created movie
-  //   return await ActorsInMovies.create({ actorId, movieId: movie.id });
-  // });
+  const actorsInMoviesPromises = actors.map(async (actorId) => {
+    // Assign actors to newly created movie
+    return await ActorsInMovies.create({ actorId, movieId: newMovie.id });
+  });
 
-  // await Promise.all(actorsInMoviesPromises);
+  await Promise.all(actorsInMoviesPromises);
 
   res.status(200).json({
     status: 'success',

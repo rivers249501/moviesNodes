@@ -17,6 +17,7 @@ const {
 } = require('../middlewares/auth.middlewares');
 
 const { movieExists } = require('../middlewares/moviesmiddleware');
+const { createMovieValidators, validateResult } = require('../middlewares/validator.middleware');
 
 //utils
 const { upload } = require('../utils/multer');
@@ -28,7 +29,7 @@ router.use(validateSession);
 router
   .route('/')
   .get(getAllmovie)
-  .post(protectAdmin, upload.single('imgUrl'), createMovie);
+  .post(protectAdmin, upload.single('imgUrl'),createMovieValidators, validateResult, createMovie);
 
 router.use('/', movieExists);
 

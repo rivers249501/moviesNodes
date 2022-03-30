@@ -30,7 +30,7 @@ router
   .get(getAllActors)
   .post(
     protectAdmin,
-    upload.single('imgUrl'),
+    upload.single('pictureProfile'),
     // [
     //   body('name').isString().notEmpty(),
     //   body('country')
